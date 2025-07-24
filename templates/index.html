@@ -98,11 +98,11 @@
         <p><strong>Total general:</strong> ${{ total_general }}</p>
     </div>
 
-{% if mostrar_monto %}
-<script>
-    alert("El último auto pagó: ${{ ultimo_monto }} por {{ ultimo_tiempo }}.");
-</script>
-{% endif %}
+    {% if mostrar_monto %}
+    <script>
+        alert("El último auto pagó: ${{ monto }} por {{ minutos }} minutos.");
+    </script>
+    {% endif %}
 
 </body>
 </html>

@@ -6,12 +6,14 @@ import os
 
 app = Flask(__name__)
 
-# Obtener y corregir URL de base de datos
+# URL de conexión a la base de datos de Render
 DATABASE_URL = "postgresql://estacionamiento_db_gf51_user:KIk0jyDxsQi7NIDDrtLsvpjJEa4aRdoT@dpg-d1t4uiur433s73f0br30-a/estacionamiento_db_gf51"
-if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = "postgresql://estacionamiento_db_gf51_user:KIk0jyDxsQi7NIDDrtLsvpjJEa4aRdoT@dpg-d1t4uiur433s73f0br30-a/estacionamiento_db_gf51"
 
-# Crear conexión SQLAlchemy
+# Corregir prefijo si fuera necesario
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+# Crear motor SQLAlchemy
 engine = create_engine(DATABASE_URL)
 
 # Crear tabla si no existe
@@ -42,7 +44,10 @@ def index():
         medio_pago = request.form.get("medio_pago", "")
 
         with engine.begin() as conn:
-            result = conn.execute(text("SELECT * FROM ingresos WHERE patente = :patente AND hora_salida IS NULL"), {"patente": patente})
+            result = conn.execute(
+                text("SELECT * FROM ingresos WHERE patente = :patente AND hora_salida IS NULL"),
+                {"patente": patente}
+            )
             registro = result.fetchone()
 
             if registro:
@@ -76,19 +81,19 @@ def index():
                     mostrar_monto = True
                     minutos = minutos_totales
             else:
-                conn.execute(text("INSERT INTO ingresos (patente, hora_entrada) VALUES (:patente, :entrada)"), {
+                conn.execute(text("""
+                    INSERT INTO ingresos (patente, hora_entrada) VALUES (:patente, :entrada)
+                """), {
                     "patente": patente,
                     "entrada": now
                 })
                 return redirect(url_for("index", fecha=filtro_fecha))
 
-    # Mostrar registros del día filtrado
     with engine.begin() as conn:
         df = pd.read_sql("SELECT * FROM ingresos ORDER BY id DESC", conn)
         df["fecha"] = df["hora_entrada"].dt.strftime("%Y-%m-%d")
         registros = df[df["fecha"] == filtro_fecha].to_dict(orient="records")
 
-        # Última salida con hora_salida NO NULL
         salida = df[(df["fecha"] == filtro_fecha) & (df["hora_salida"].notnull())]
         ultima_salida_id = salida["id"].max() if not salida.empty else None
 
@@ -103,5 +108,3 @@ def index():
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-

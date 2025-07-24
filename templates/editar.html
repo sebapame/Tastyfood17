@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head><title>Editar Registro</title></head>
@@ -14,11 +13,14 @@
         <label>Hora Salida:</label>
         <input type="text" name="hora_salida" value="{{ registro[3] or '' }}"><br><br>
 
+        <label>Minutos:</label>
+        <input type="number" name="minutos" value="{{ registro[4] or '' }}"><br><br>
+
         <label>Monto:</label>
-        <input type="number" name="monto" value="{{ registro[4] or '' }}"><br><br>
+        <input type="number" name="monto" value="{{ registro[5] or '' }}"><br><br>
 
         <label>Medio de Pago:</label>
-        <input type="text" name="medio_pago" value="{{ registro[5] or '' }}"><br><br>
+        <input type="text" name="medio_pago" value="{{ registro[6] or '' }}"><br><br>
 
         <input type="submit" value="Guardar Cambios">
         <a href="/">Cancelar</a>
